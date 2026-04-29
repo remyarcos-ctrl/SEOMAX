@@ -2,7 +2,6 @@ from fastapi import FastAPI, BackgroundTasks
 from fastapi.staticfiles import StaticFiles
 from fastapi.responses import HTMLResponse, StreamingResponse
 from pydantic import BaseModel
-import anthropic
 import os
 import json
 import asyncio
