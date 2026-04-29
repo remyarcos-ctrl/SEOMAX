@@ -26,7 +26,7 @@ async def stream_agent_response(url: str, email: str, keyword: str):
         "content-type": "application/json"
     }
 
-    message = f"Audite cette page et donne-moi un diagnostic complet : {url}"
+    message = url  # On envoie directement le message de l'utilisateur
     if keyword:
         message += f" | Mot-clé cible : {keyword}"
     if email:
