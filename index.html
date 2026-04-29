@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>SEOMAX — Agent SEO</title>
+<title>Brandon — Agent SEO</title>
 <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
 <style>
 * { box-sizing: border-box; margin: 0; padding: 0; }
@@ -70,7 +70,7 @@ body { font-family: 'Plus Jakarta Sans', sans-serif; background: #f7f8fc; height
   <div class="logo">
     <div class="logo-av">🚀</div>
     <div>
-      <div class="logo-name">SEOMAX</div>
+      <div class="logo-name">Brandon</div>
       <div class="logo-sub">Votre agent SEO personnel</div>
     </div>
   </div>
@@ -80,7 +80,7 @@ body { font-family: 'Plus Jakarta Sans', sans-serif; background: #f7f8fc; height
 <div class="msgs" id="msgs"></div>
 
 <div class="inp-area">
-  <input class="inp-box" id="inp" type="text" placeholder="Posez votre question à SEOMAX..." />
+  <input class="inp-box" id="inp" type="text" placeholder="Posez votre question à Brandon..." />
   <button class="send" id="send-btn" onclick="sendMessage()">↑</button>
 </div>
 
@@ -107,7 +107,7 @@ function addMessage(role, content, isHtml) {
 
   const name = document.createElement('div');
   name.className = 'msg-name';
-  name.textContent = role === 'user' ? 'Vous' : 'SEOMAX';
+  name.textContent = role === 'user' ? 'Vous' : 'Brandon';
 
   const bubble = document.createElement('div');
   bubble.className = 'bubble ' + (role === 'user' ? 'bubble-u' : 'bubble-s');
@@ -250,7 +250,7 @@ document.getElementById('inp').addEventListener('keydown', e => {
 
 window.onload = () => {
   const bubble = addMessage('agent', '').parentElement.querySelector('.bubble');
-  bubble.innerHTML = '👋 Salut ! Je suis <strong>SEOMAX</strong>, votre agent SEO personnel.<br><br>Donnez-moi une URL à analyser, posez-moi une question SEO, ou dites-moi quel mot-clé vous souhaitez cibler — je m\'occupe du reste !';
+  bubble.innerHTML = '👋 Salut ! Je suis <strong>Brandon</strong>, votre agent SEO personnel.<br><br>Donnez-moi une URL à analyser, posez-moi une question SEO, ou dites-moi quel mot-clé vous souhaitez cibler — je m\'occupe du reste !';
   addQuickActions(bubble, ['🔍 Auditer mon site', '🎯 Analyser un mot-clé', '🏆 Voir mes concurrents']);
 };
 </script>
