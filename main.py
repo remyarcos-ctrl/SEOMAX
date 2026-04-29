@@ -1,13 +1,19 @@
-from fastapi import FastAPI, BackgroundTasks
-from fastapi.staticfiles import StaticFiles
+from fastapi import FastAPI
+from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import HTMLResponse, StreamingResponse
 from pydantic import BaseModel
 import os
 import json
-import asyncio
 import httpx
 
 app = FastAPI()
+
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["*"],
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
 
 ANTHROPIC_API_KEY = os.environ.get("ANTHROPIC_API_KEY")
 AGENT_ID = os.environ.get("AGENT_ID", "agent_011CaY1QbMWkL8UepiQgHedg")
@@ -26,13 +32,12 @@ async def stream_agent_response(url: str, email: str, keyword: str):
         "content-type": "application/json"
     }
 
-    message = url  # On envoie directement le message de l'utilisateur
+    message = url
     if keyword:
         message += f" | Mot-clé cible : {keyword}"
     if email:
         message += f" | Envoie le rapport complet par email à : {email}"
 
-    # Créer la session
     async with httpx.AsyncClient(timeout=30) as client:
         session_resp = await client.post(
             "https://api.anthropic.com/v1/sessions",
@@ -49,9 +54,8 @@ async def stream_agent_response(url: str, email: str, keyword: str):
         yield f"data: {json.dumps({'type': 'error', 'content': 'Impossible de créer la session'})}\n\n"
         return
 
-    yield f"data: {json.dumps({'type': 'status', 'content': '🔍 Session SEOMAX démarrée...'})}\n\n"
+    yield f"data: {json.dumps({'type': 'status', 'content': 'Session démarrée...'})}\n\n"
 
-    # Envoyer le message et streamer les événements
     async with httpx.AsyncClient(timeout=300) as client:
         async with client.stream(
             "POST",
@@ -73,10 +77,10 @@ async def stream_agent_response(url: str, email: str, keyword: str):
 
                         elif event_type == "agent.mcp_tool_use":
                             tool_name = data.get("name", "")
-                            yield f"data: {json.dumps({'type': 'tool', 'content': f'🛠️ Utilisation de : {tool_name}'})}\n\n"
+                            yield f"data: {json.dumps({'type': 'tool', 'content': f'Utilisation de : {tool_name}'})}\n\n"
 
                         elif event_type == "session.status_idle":
-                            yield f"data: {json.dumps({'type': 'done', 'content': '✅ Analyse terminée'})}\n\n"
+                            yield f"data: {json.dumps({'type': 'done', 'content': 'Analyse terminée'})}\n\n"
 
                     except:
                         pass
@@ -101,4 +105,3 @@ async def audit(request: AuditRequest):
 @app.get("/health")
 async def health():
     return {"status": "ok", "agent": AGENT_ID}
-
