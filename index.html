@@ -1,0 +1,658 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>SEOMAX — Agent SEO Elite</title>
+<link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=DM+Mono:wght@300;400;500&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --black: #080810;
+    --deep: #0d0d1a;
+    --card: #12121f;
+    --border: #1e1e35;
+    --accent: #00ff88;
+    --accent2: #0088ff;
+    --accent3: #ff3366;
+    --text: #e8e8f0;
+    --muted: #6666aa;
+    --font-display: 'Syne', sans-serif;
+    --font-mono: 'DM Mono', monospace;
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  body {
+    background: var(--black);
+    color: var(--text);
+    font-family: var(--font-display);
+    min-height: 100vh;
+    overflow-x: hidden;
+  }
+
+  /* Grid background */
+  body::before {
+    content: '';
+    position: fixed;
+    inset: 0;
+    background-image:
+      linear-gradient(rgba(0,255,136,0.03) 1px, transparent 1px),
+      linear-gradient(90deg, rgba(0,255,136,0.03) 1px, transparent 1px);
+    background-size: 60px 60px;
+    pointer-events: none;
+    z-index: 0;
+  }
+
+  /* Glow orbs */
+  .orb {
+    position: fixed;
+    border-radius: 50%;
+    filter: blur(120px);
+    pointer-events: none;
+    z-index: 0;
+  }
+  .orb-1 {
+    width: 600px; height: 600px;
+    background: rgba(0,255,136,0.06);
+    top: -200px; left: -200px;
+    animation: float1 20s ease-in-out infinite;
+  }
+  .orb-2 {
+    width: 500px; height: 500px;
+    background: rgba(0,136,255,0.05);
+    bottom: -150px; right: -150px;
+    animation: float2 25s ease-in-out infinite;
+  }
+
+  @keyframes float1 {
+    0%, 100% { transform: translate(0,0); }
+    50% { transform: translate(60px, 40px); }
+  }
+  @keyframes float2 {
+    0%, 100% { transform: translate(0,0); }
+    50% { transform: translate(-40px, -60px); }
+  }
+
+  /* NAV */
+  nav {
+    position: fixed; top: 0; left: 0; right: 0;
+    z-index: 100;
+    padding: 1.2rem 3rem;
+    display: flex; align-items: center; justify-content: space-between;
+    border-bottom: 1px solid var(--border);
+    background: rgba(8,8,16,0.8);
+    backdrop-filter: blur(20px);
+  }
+
+  .logo {
+    font-size: 1.4rem;
+    font-weight: 800;
+    letter-spacing: -0.02em;
+    display: flex; align-items: center; gap: 10px;
+  }
+  .logo-dot {
+    width: 8px; height: 8px;
+    background: var(--accent);
+    border-radius: 50%;
+    box-shadow: 0 0 12px var(--accent);
+    animation: pulse 2s ease-in-out infinite;
+  }
+  @keyframes pulse {
+    0%, 100% { opacity: 1; transform: scale(1); }
+    50% { opacity: 0.6; transform: scale(0.8); }
+  }
+
+  .nav-badge {
+    font-family: var(--font-mono);
+    font-size: 0.7rem;
+    color: var(--accent);
+    border: 1px solid rgba(0,255,136,0.3);
+    padding: 4px 12px;
+    border-radius: 20px;
+    letter-spacing: 0.1em;
+  }
+
+  /* HERO */
+  .hero {
+    position: relative;
+    z-index: 1;
+    padding: 12rem 3rem 5rem;
+    max-width: 1200px;
+    margin: 0 auto;
+  }
+
+  .hero-label {
+    font-family: var(--font-mono);
+    font-size: 0.75rem;
+    color: var(--accent);
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    margin-bottom: 1.5rem;
+    display: flex; align-items: center; gap: 8px;
+  }
+  .hero-label::before {
+    content: '';
+    width: 24px; height: 1px;
+    background: var(--accent);
+  }
+
+  h1 {
+    font-size: clamp(3rem, 7vw, 6rem);
+    font-weight: 800;
+    line-height: 1;
+    letter-spacing: -0.03em;
+    margin-bottom: 1.5rem;
+  }
+
+  .gradient-text {
+    background: linear-gradient(135deg, #00ff88, #0088ff);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+  }
+
+  .hero-sub {
+    font-family: var(--font-mono);
+    font-size: 1rem;
+    color: var(--muted);
+    max-width: 520px;
+    line-height: 1.8;
+    margin-bottom: 4rem;
+  }
+
+  /* FORM CARD */
+  .audit-card {
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 20px;
+    padding: 2.5rem;
+    max-width: 800px;
+    position: relative;
+    overflow: hidden;
+  }
+
+  .audit-card::before {
+    content: '';
+    position: absolute;
+    top: 0; left: 0; right: 0;
+    height: 1px;
+    background: linear-gradient(90deg, transparent, var(--accent), transparent);
+  }
+
+  .form-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 1rem;
+    margin-bottom: 1rem;
+  }
+
+  .form-group {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+  }
+
+  .form-group.full { grid-column: 1 / -1; }
+
+  label {
+    font-family: var(--font-mono);
+    font-size: 0.7rem;
+    color: var(--muted);
+    letter-spacing: 0.15em;
+    text-transform: uppercase;
+  }
+
+  input {
+    background: rgba(255,255,255,0.04);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 14px 18px;
+    color: var(--text);
+    font-family: var(--font-mono);
+    font-size: 0.9rem;
+    outline: none;
+    transition: all 0.2s;
+    width: 100%;
+  }
+
+  input:focus {
+    border-color: rgba(0,255,136,0.4);
+    background: rgba(0,255,136,0.04);
+    box-shadow: 0 0 0 3px rgba(0,255,136,0.08);
+  }
+
+  input::placeholder { color: rgba(102,102,170,0.5); }
+
+  .btn-audit {
+    width: 100%;
+    padding: 16px;
+    background: var(--accent);
+    color: var(--black);
+    border: none;
+    border-radius: 10px;
+    font-family: var(--font-display);
+    font-size: 1rem;
+    font-weight: 700;
+    cursor: pointer;
+    letter-spacing: 0.02em;
+    transition: all 0.2s;
+    margin-top: 0.5rem;
+    position: relative;
+    overflow: hidden;
+  }
+
+  .btn-audit:hover {
+    transform: translateY(-1px);
+    box-shadow: 0 8px 30px rgba(0,255,136,0.3);
+  }
+
+  .btn-audit:active { transform: translateY(0); }
+
+  .btn-audit.loading {
+    background: rgba(0,255,136,0.3);
+    color: var(--accent);
+    cursor: not-allowed;
+  }
+
+  /* STATS */
+  .stats {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 1px;
+    background: var(--border);
+    border-radius: 12px;
+    overflow: hidden;
+    margin-top: 1rem;
+  }
+
+  .stat {
+    background: var(--card);
+    padding: 1rem;
+    text-align: center;
+  }
+
+  .stat-num {
+    font-size: 1.5rem;
+    font-weight: 800;
+    color: var(--accent);
+  }
+
+  .stat-label {
+    font-family: var(--font-mono);
+    font-size: 0.65rem;
+    color: var(--muted);
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+    margin-top: 2px;
+  }
+
+  /* TERMINAL OUTPUT */
+  .terminal {
+    max-width: 800px;
+    margin-top: 2rem;
+    display: none;
+  }
+
+  .terminal.active { display: block; }
+
+  .terminal-header {
+    background: var(--deep);
+    border: 1px solid var(--border);
+    border-bottom: none;
+    border-radius: 12px 12px 0 0;
+    padding: 12px 16px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+
+  .t-dot {
+    width: 12px; height: 12px;
+    border-radius: 50%;
+  }
+  .t-dot-1 { background: #ff5f57; }
+  .t-dot-2 { background: #febc2e; }
+  .t-dot-3 { background: #28c840; }
+
+  .t-title {
+    font-family: var(--font-mono);
+    font-size: 0.75rem;
+    color: var(--muted);
+    margin-left: auto;
+  }
+
+  .terminal-body {
+    background: #050508;
+    border: 1px solid var(--border);
+    border-radius: 0 0 12px 12px;
+    padding: 1.5rem;
+    min-height: 200px;
+    max-height: 600px;
+    overflow-y: auto;
+    font-family: var(--font-mono);
+    font-size: 0.85rem;
+    line-height: 1.8;
+  }
+
+  .t-line {
+    display: flex;
+    gap: 12px;
+    margin-bottom: 4px;
+    animation: fadeIn 0.3s ease;
+  }
+
+  @keyframes fadeIn {
+    from { opacity: 0; transform: translateY(4px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+
+  .t-prefix { color: var(--accent); flex-shrink: 0; }
+  .t-content { color: #c8c8e8; flex: 1; white-space: pre-wrap; word-break: break-word; }
+  .t-tool { color: var(--accent2); }
+  .t-status { color: #febc2e; }
+  .t-done { color: var(--accent); font-weight: 500; }
+  .t-error { color: var(--accent3); }
+
+  .cursor {
+    display: inline-block;
+    width: 8px; height: 16px;
+    background: var(--accent);
+    animation: blink 1s step-end infinite;
+    vertical-align: middle;
+    margin-left: 4px;
+  }
+  @keyframes blink { 0%, 100% { opacity: 1; } 50% { opacity: 0; } }
+
+  /* FEATURES */
+  .features {
+    position: relative; z-index: 1;
+    max-width: 1200px;
+    margin: 6rem auto;
+    padding: 0 3rem;
+  }
+
+  .features-grid {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 1px;
+    background: var(--border);
+    border-radius: 16px;
+    overflow: hidden;
+  }
+
+  .feature {
+    background: var(--card);
+    padding: 2rem;
+    transition: background 0.2s;
+  }
+
+  .feature:hover { background: var(--deep); }
+
+  .feature-icon {
+    font-size: 1.5rem;
+    margin-bottom: 1rem;
+  }
+
+  .feature-title {
+    font-size: 0.95rem;
+    font-weight: 700;
+    margin-bottom: 0.5rem;
+    letter-spacing: -0.01em;
+  }
+
+  .feature-desc {
+    font-family: var(--font-mono);
+    font-size: 0.75rem;
+    color: var(--muted);
+    line-height: 1.6;
+  }
+
+  /* SCROLLBAR */
+  ::-webkit-scrollbar { width: 4px; }
+  ::-webkit-scrollbar-track { background: transparent; }
+  ::-webkit-scrollbar-thumb { background: var(--border); border-radius: 2px; }
+
+  /* MARKDOWN RENDERING */
+  .md-h1, .md-h2, .md-h3 { color: var(--accent); font-weight: 700; margin: 1rem 0 0.5rem; }
+  .md-h1 { font-size: 1.1rem; }
+  .md-h2 { font-size: 1rem; }
+  .md-h3 { font-size: 0.9rem; color: var(--accent2); }
+  .md-bold { color: #fff; font-weight: 600; }
+  .md-li { color: #c8c8e8; padding-left: 1rem; }
+  .md-li::before { content: '→ '; color: var(--accent); }
+
+  @media (max-width: 768px) {
+    nav { padding: 1rem 1.5rem; }
+    .hero { padding: 8rem 1.5rem 3rem; }
+    .form-grid { grid-template-columns: 1fr; }
+    .features-grid { grid-template-columns: 1fr 1fr; }
+    .stats { grid-template-columns: 1fr; }
+  }
+</style>
+</head>
+<body>
+
+<div class="orb orb-1"></div>
+<div class="orb orb-2"></div>
+
+<nav>
+  <div class="logo">
+    <div class="logo-dot"></div>
+    SEOMAX
+  </div>
+  <div class="nav-badge">AGENT SEO ELITE v2.0</div>
+</nav>
+
+<section class="hero">
+  <div class="hero-label">Orchidée Innovation — Agent IA</div>
+  <h1>Propulsez votre site<br><span class="gradient-text">en position #1</span></h1>
+  <p class="hero-sub">SEOMAX analyse votre site en temps réel, identifie vos opportunités de ranking et génère un plan d'action précis pour dominer Google.</p>
+
+  <div class="audit-card">
+    <div class="form-grid">
+      <div class="form-group full">
+        <label>URL à analyser</label>
+        <input type="url" id="url" placeholder="https://votre-site.fr" />
+      </div>
+      <div class="form-group">
+        <label>Mot-clé cible (optionnel)</label>
+        <input type="text" id="keyword" placeholder="ex: installateur panneaux solaires" />
+      </div>
+      <div class="form-group">
+        <label>Recevoir le rapport par email</label>
+        <input type="email" id="email" placeholder="vous@email.fr" />
+      </div>
+    </div>
+    <button class="btn-audit" id="btn" onclick="startAudit()">
+      ⚡ Lancer l'analyse SEOMAX
+    </button>
+
+    <div class="stats">
+      <div class="stat">
+        <div class="stat-num" id="s-tools">0</div>
+        <div class="stat-label">Outils utilisés</div>
+      </div>
+      <div class="stat">
+        <div class="stat-num" id="s-time">0s</div>
+        <div class="stat-label">Temps d'analyse</div>
+      </div>
+      <div class="stat">
+        <div class="stat-num" id="s-lines">0</div>
+        <div class="stat-label">Lignes analysées</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="terminal" id="terminal">
+    <div class="terminal-header">
+      <div class="t-dot t-dot-1"></div>
+      <div class="t-dot t-dot-2"></div>
+      <div class="t-dot t-dot-3"></div>
+      <div class="t-title">SEOMAX — Analyse en cours</div>
+    </div>
+    <div class="terminal-body" id="output">
+      <span class="cursor"></span>
+    </div>
+  </div>
+</section>
+
+<section class="features">
+  <div class="features-grid">
+    <div class="feature">
+      <div class="feature-icon">🔍</div>
+      <div class="feature-title">Audit on-page</div>
+      <div class="feature-desc">Score /100 avec analyse complète des balises, structure et contenu.</div>
+    </div>
+    <div class="feature">
+      <div class="feature-icon">📊</div>
+      <div class="feature-title">Analyse concurrents</div>
+      <div class="feature-desc">Décryptage des stratégies des 5 sites en top position sur vos mots-clés.</div>
+    </div>
+    <div class="feature">
+      <div class="feature-icon">⚡</div>
+      <div class="feature-title">Quick wins</div>
+      <div class="feature-desc">Actions prioritaires pour des résultats visibles en moins de 30 jours.</div>
+    </div>
+    <div class="feature">
+      <div class="feature-icon">📧</div>
+      <div class="feature-title">Rapport email</div>
+      <div class="feature-desc">Rapport complet envoyé directement dans votre boîte mail.</div>
+    </div>
+  </div>
+</section>
+
+<script>
+  let startTime, timer, toolCount = 0, lineCount = 0;
+
+  function updateStats() {
+    const elapsed = Math.round((Date.now() - startTime) / 1000);
+    document.getElementById('s-time').textContent = elapsed + 's';
+    document.getElementById('s-tools').textContent = toolCount;
+    document.getElementById('s-lines').textContent = lineCount;
+  }
+
+  function addLine(content, type = 'content') {
+    const output = document.getElementById('output');
+    const cursor = output.querySelector('.cursor');
+
+    const line = document.createElement('div');
+    line.className = 't-line';
+
+    const prefix = document.createElement('span');
+    prefix.className = 't-prefix';
+    prefix.textContent = '›';
+
+    const text = document.createElement('span');
+    text.className = `t-content t-${type}`;
+    text.innerHTML = formatMarkdown(content);
+
+    line.appendChild(prefix);
+    line.appendChild(text);
+
+    if (cursor) output.insertBefore(line, cursor);
+    else output.appendChild(line);
+
+    output.scrollTop = output.scrollHeight;
+    lineCount++;
+    updateStats();
+  }
+
+  function formatMarkdown(text) {
+    return text
+      .replace(/^### (.+)$/gm, '<span class="md-h3">$1</span>')
+      .replace(/^## (.+)$/gm, '<span class="md-h2">$1</span>')
+      .replace(/^# (.+)$/gm, '<span class="md-h1">$1</span>')
+      .replace(/\*\*(.+?)\*\*/g, '<span class="md-bold">$1</span>')
+      .replace(/^[-•] (.+)$/gm, '<span class="md-li">$1</span>')
+      .replace(/`(.+?)`/g, '<code style="color:#00ff88;background:rgba(0,255,136,0.1);padding:1px 6px;border-radius:4px;">$1</code>');
+  }
+
+  async function startAudit() {
+    const url = document.getElementById('url').value.trim();
+    const email = document.getElementById('email').value.trim();
+    const keyword = document.getElementById('keyword').value.trim();
+
+    if (!url) {
+      alert('Veuillez entrer une URL à analyser');
+      return;
+    }
+
+    const btn = document.getElementById('btn');
+    const terminal = document.getElementById('terminal');
+    const output = document.getElementById('output');
+
+    btn.textContent = '⏳ Analyse en cours...';
+    btn.classList.add('loading');
+    btn.disabled = true;
+
+    output.innerHTML = '<span class="cursor"></span>';
+    terminal.classList.add('active');
+    toolCount = 0; lineCount = 0;
+    startTime = Date.now();
+
+    timer = setInterval(updateStats, 1000);
+
+    addLine(`Analyse de : ${url}`, 'status');
+    if (keyword) addLine(`Mot-clé cible : ${keyword}`, 'status');
+    if (email) addLine(`Rapport envoyé à : ${email}`, 'status');
+    addLine('Connexion à SEOMAX...', 'status');
+
+    try {
+      const response = await fetch('/audit', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ url, email, keyword })
+      });
+
+      const reader = response.body.getReader();
+      const decoder = new TextDecoder();
+
+      while (true) {
+        const { done, value } = await reader.read();
+        if (done) break;
+
+        const chunk = decoder.decode(value);
+        const lines = chunk.split('\n');
+
+        for (const line of lines) {
+          if (line.startsWith('data:')) {
+            try {
+              const data = JSON.parse(line.slice(5).trim());
+
+              if (data.type === 'message') {
+                const parts = data.content.split('\n');
+                for (const part of parts) {
+                  if (part.trim()) addLine(part, 'content');
+                }
+              } else if (data.type === 'tool') {
+                toolCount++;
+                addLine(data.content, 'tool');
+                updateStats();
+              } else if (data.type === 'status') {
+                addLine(data.content, 'status');
+              } else if (data.type === 'done') {
+                addLine(data.content, 'done');
+              } else if (data.type === 'error') {
+                addLine(data.content, 'error');
+              }
+            } catch(e) {}
+          }
+        }
+      }
+    } catch(e) {
+      addLine('Erreur de connexion : ' + e.message, 'error');
+    }
+
+    clearInterval(timer);
+    updateStats();
+    btn.textContent = '⚡ Lancer une nouvelle analyse';
+    btn.classList.remove('loading');
+    btn.disabled = false;
+  }
+
+  document.getElementById('url').addEventListener('keypress', (e) => {
+    if (e.key === 'Enter') startAudit();
+  });
+</script>
+</body>
+</html>
