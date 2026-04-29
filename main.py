@@ -104,4 +104,4 @@ async def audit(request: AuditRequest):
 
 @app.get("/health")
 async def health():
-    return {"status": "ok", "agent": AGENT_ID}
+    return {"status": "ok", "agent": AGENT_ID} 
