@@ -11,13 +11,19 @@ from email.mime.multipart import MIMEMultipart
 mcp = FastMCP("Gmail MCP pour SEOMAX")
 
 # Credentials depuis variables d'environnement
+SCOPES = [
+    "https://www.googleapis.com/auth/gmail.send",
+    "https://www.googleapis.com/auth/gmail.readonly"
+]
+
 def get_gmail_service():
     creds = Credentials(
         token=os.environ.get("GMAIL_ACCESS_TOKEN"),
         refresh_token=os.environ.get("GMAIL_REFRESH_TOKEN"),
         client_id=os.environ.get("GMAIL_CLIENT_ID"),
         client_secret=os.environ.get("GMAIL_CLIENT_SECRET"),
-        token_uri="https://oauth2.googleapis.com/token"
+        token_uri="https://oauth2.googleapis.com/token",
+        scopes=SCOPES
     )
     return build("gmail", "v1", credentials=creds)
 
