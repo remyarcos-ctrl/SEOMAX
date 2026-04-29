@@ -3,656 +3,256 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>SEOMAX — Agent SEO Elite</title>
-<link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=DM+Mono:wght@300;400;500&display=swap" rel="stylesheet">
+<title>SEOMAX — Agent SEO</title>
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
 <style>
-  :root {
-    --black: #080810;
-    --deep: #0d0d1a;
-    --card: #12121f;
-    --border: #1e1e35;
-    --accent: #00ff88;
-    --accent2: #0088ff;
-    --accent3: #ff3366;
-    --text: #e8e8f0;
-    --muted: #6666aa;
-    --font-display: 'Syne', sans-serif;
-    --font-mono: 'DM Mono', monospace;
-  }
-
-  * { margin: 0; padding: 0; box-sizing: border-box; }
-
-  body {
-    background: var(--black);
-    color: var(--text);
-    font-family: var(--font-display);
-    min-height: 100vh;
-    overflow-x: hidden;
-  }
-
-  /* Grid background */
-  body::before {
-    content: '';
-    position: fixed;
-    inset: 0;
-    background-image:
-      linear-gradient(rgba(0,255,136,0.03) 1px, transparent 1px),
-      linear-gradient(90deg, rgba(0,255,136,0.03) 1px, transparent 1px);
-    background-size: 60px 60px;
-    pointer-events: none;
-    z-index: 0;
-  }
-
-  /* Glow orbs */
-  .orb {
-    position: fixed;
-    border-radius: 50%;
-    filter: blur(120px);
-    pointer-events: none;
-    z-index: 0;
-  }
-  .orb-1 {
-    width: 600px; height: 600px;
-    background: rgba(0,255,136,0.06);
-    top: -200px; left: -200px;
-    animation: float1 20s ease-in-out infinite;
-  }
-  .orb-2 {
-    width: 500px; height: 500px;
-    background: rgba(0,136,255,0.05);
-    bottom: -150px; right: -150px;
-    animation: float2 25s ease-in-out infinite;
-  }
-
-  @keyframes float1 {
-    0%, 100% { transform: translate(0,0); }
-    50% { transform: translate(60px, 40px); }
-  }
-  @keyframes float2 {
-    0%, 100% { transform: translate(0,0); }
-    50% { transform: translate(-40px, -60px); }
-  }
-
-  /* NAV */
-  nav {
-    position: fixed; top: 0; left: 0; right: 0;
-    z-index: 100;
-    padding: 1.2rem 3rem;
-    display: flex; align-items: center; justify-content: space-between;
-    border-bottom: 1px solid var(--border);
-    background: rgba(8,8,16,0.8);
-    backdrop-filter: blur(20px);
-  }
-
-  .logo {
-    font-size: 1.4rem;
-    font-weight: 800;
-    letter-spacing: -0.02em;
-    display: flex; align-items: center; gap: 10px;
-  }
-  .logo-dot {
-    width: 8px; height: 8px;
-    background: var(--accent);
-    border-radius: 50%;
-    box-shadow: 0 0 12px var(--accent);
-    animation: pulse 2s ease-in-out infinite;
-  }
-  @keyframes pulse {
-    0%, 100% { opacity: 1; transform: scale(1); }
-    50% { opacity: 0.6; transform: scale(0.8); }
-  }
-
-  .nav-badge {
-    font-family: var(--font-mono);
-    font-size: 0.7rem;
-    color: var(--accent);
-    border: 1px solid rgba(0,255,136,0.3);
-    padding: 4px 12px;
-    border-radius: 20px;
-    letter-spacing: 0.1em;
-  }
-
-  /* HERO */
-  .hero {
-    position: relative;
-    z-index: 1;
-    padding: 12rem 3rem 5rem;
-    max-width: 1200px;
-    margin: 0 auto;
-  }
-
-  .hero-label {
-    font-family: var(--font-mono);
-    font-size: 0.75rem;
-    color: var(--accent);
-    letter-spacing: 0.2em;
-    text-transform: uppercase;
-    margin-bottom: 1.5rem;
-    display: flex; align-items: center; gap: 8px;
-  }
-  .hero-label::before {
-    content: '';
-    width: 24px; height: 1px;
-    background: var(--accent);
-  }
-
-  h1 {
-    font-size: clamp(3rem, 7vw, 6rem);
-    font-weight: 800;
-    line-height: 1;
-    letter-spacing: -0.03em;
-    margin-bottom: 1.5rem;
-  }
-
-  .gradient-text {
-    background: linear-gradient(135deg, #00ff88, #0088ff);
-    -webkit-background-clip: text;
-    -webkit-text-fill-color: transparent;
-    background-clip: text;
-  }
-
-  .hero-sub {
-    font-family: var(--font-mono);
-    font-size: 1rem;
-    color: var(--muted);
-    max-width: 520px;
-    line-height: 1.8;
-    margin-bottom: 4rem;
-  }
-
-  /* FORM CARD */
-  .audit-card {
-    background: var(--card);
-    border: 1px solid var(--border);
-    border-radius: 20px;
-    padding: 2.5rem;
-    max-width: 800px;
-    position: relative;
-    overflow: hidden;
-  }
-
-  .audit-card::before {
-    content: '';
-    position: absolute;
-    top: 0; left: 0; right: 0;
-    height: 1px;
-    background: linear-gradient(90deg, transparent, var(--accent), transparent);
-  }
-
-  .form-grid {
-    display: grid;
-    grid-template-columns: 1fr 1fr;
-    gap: 1rem;
-    margin-bottom: 1rem;
-  }
-
-  .form-group {
-    display: flex;
-    flex-direction: column;
-    gap: 8px;
-  }
-
-  .form-group.full { grid-column: 1 / -1; }
-
-  label {
-    font-family: var(--font-mono);
-    font-size: 0.7rem;
-    color: var(--muted);
-    letter-spacing: 0.15em;
-    text-transform: uppercase;
-  }
-
-  input {
-    background: rgba(255,255,255,0.04);
-    border: 1px solid var(--border);
-    border-radius: 10px;
-    padding: 14px 18px;
-    color: var(--text);
-    font-family: var(--font-mono);
-    font-size: 0.9rem;
-    outline: none;
-    transition: all 0.2s;
-    width: 100%;
-  }
-
-  input:focus {
-    border-color: rgba(0,255,136,0.4);
-    background: rgba(0,255,136,0.04);
-    box-shadow: 0 0 0 3px rgba(0,255,136,0.08);
-  }
-
-  input::placeholder { color: rgba(102,102,170,0.5); }
-
-  .btn-audit {
-    width: 100%;
-    padding: 16px;
-    background: var(--accent);
-    color: var(--black);
-    border: none;
-    border-radius: 10px;
-    font-family: var(--font-display);
-    font-size: 1rem;
-    font-weight: 700;
-    cursor: pointer;
-    letter-spacing: 0.02em;
-    transition: all 0.2s;
-    margin-top: 0.5rem;
-    position: relative;
-    overflow: hidden;
-  }
-
-  .btn-audit:hover {
-    transform: translateY(-1px);
-    box-shadow: 0 8px 30px rgba(0,255,136,0.3);
-  }
-
-  .btn-audit:active { transform: translateY(0); }
-
-  .btn-audit.loading {
-    background: rgba(0,255,136,0.3);
-    color: var(--accent);
-    cursor: not-allowed;
-  }
-
-  /* STATS */
-  .stats {
-    display: grid;
-    grid-template-columns: repeat(3, 1fr);
-    gap: 1px;
-    background: var(--border);
-    border-radius: 12px;
-    overflow: hidden;
-    margin-top: 1rem;
-  }
-
-  .stat {
-    background: var(--card);
-    padding: 1rem;
-    text-align: center;
-  }
-
-  .stat-num {
-    font-size: 1.5rem;
-    font-weight: 800;
-    color: var(--accent);
-  }
-
-  .stat-label {
-    font-family: var(--font-mono);
-    font-size: 0.65rem;
-    color: var(--muted);
-    text-transform: uppercase;
-    letter-spacing: 0.1em;
-    margin-top: 2px;
-  }
-
-  /* TERMINAL OUTPUT */
-  .terminal {
-    max-width: 800px;
-    margin-top: 2rem;
-    display: none;
-  }
-
-  .terminal.active { display: block; }
-
-  .terminal-header {
-    background: var(--deep);
-    border: 1px solid var(--border);
-    border-bottom: none;
-    border-radius: 12px 12px 0 0;
-    padding: 12px 16px;
-    display: flex;
-    align-items: center;
-    gap: 8px;
-  }
-
-  .t-dot {
-    width: 12px; height: 12px;
-    border-radius: 50%;
-  }
-  .t-dot-1 { background: #ff5f57; }
-  .t-dot-2 { background: #febc2e; }
-  .t-dot-3 { background: #28c840; }
-
-  .t-title {
-    font-family: var(--font-mono);
-    font-size: 0.75rem;
-    color: var(--muted);
-    margin-left: auto;
-  }
-
-  .terminal-body {
-    background: #050508;
-    border: 1px solid var(--border);
-    border-radius: 0 0 12px 12px;
-    padding: 1.5rem;
-    min-height: 200px;
-    max-height: 600px;
-    overflow-y: auto;
-    font-family: var(--font-mono);
-    font-size: 0.85rem;
-    line-height: 1.8;
-  }
-
-  .t-line {
-    display: flex;
-    gap: 12px;
-    margin-bottom: 4px;
-    animation: fadeIn 0.3s ease;
-  }
-
-  @keyframes fadeIn {
-    from { opacity: 0; transform: translateY(4px); }
-    to { opacity: 1; transform: translateY(0); }
-  }
-
-  .t-prefix { color: var(--accent); flex-shrink: 0; }
-  .t-content { color: #c8c8e8; flex: 1; white-space: pre-wrap; word-break: break-word; }
-  .t-tool { color: var(--accent2); }
-  .t-status { color: #febc2e; }
-  .t-done { color: var(--accent); font-weight: 500; }
-  .t-error { color: var(--accent3); }
-
-  .cursor {
-    display: inline-block;
-    width: 8px; height: 16px;
-    background: var(--accent);
-    animation: blink 1s step-end infinite;
-    vertical-align: middle;
-    margin-left: 4px;
-  }
-  @keyframes blink { 0%, 100% { opacity: 1; } 50% { opacity: 0; } }
-
-  /* FEATURES */
-  .features {
-    position: relative; z-index: 1;
-    max-width: 1200px;
-    margin: 6rem auto;
-    padding: 0 3rem;
-  }
-
-  .features-grid {
-    display: grid;
-    grid-template-columns: repeat(4, 1fr);
-    gap: 1px;
-    background: var(--border);
-    border-radius: 16px;
-    overflow: hidden;
-  }
-
-  .feature {
-    background: var(--card);
-    padding: 2rem;
-    transition: background 0.2s;
-  }
-
-  .feature:hover { background: var(--deep); }
-
-  .feature-icon {
-    font-size: 1.5rem;
-    margin-bottom: 1rem;
-  }
-
-  .feature-title {
-    font-size: 0.95rem;
-    font-weight: 700;
-    margin-bottom: 0.5rem;
-    letter-spacing: -0.01em;
-  }
-
-  .feature-desc {
-    font-family: var(--font-mono);
-    font-size: 0.75rem;
-    color: var(--muted);
-    line-height: 1.6;
-  }
-
-  /* SCROLLBAR */
-  ::-webkit-scrollbar { width: 4px; }
-  ::-webkit-scrollbar-track { background: transparent; }
-  ::-webkit-scrollbar-thumb { background: var(--border); border-radius: 2px; }
-
-  /* MARKDOWN RENDERING */
-  .md-h1, .md-h2, .md-h3 { color: var(--accent); font-weight: 700; margin: 1rem 0 0.5rem; }
-  .md-h1 { font-size: 1.1rem; }
-  .md-h2 { font-size: 1rem; }
-  .md-h3 { font-size: 0.9rem; color: var(--accent2); }
-  .md-bold { color: #fff; font-weight: 600; }
-  .md-li { color: #c8c8e8; padding-left: 1rem; }
-  .md-li::before { content: '→ '; color: var(--accent); }
-
-  @media (max-width: 768px) {
-    nav { padding: 1rem 1.5rem; }
-    .hero { padding: 8rem 1.5rem 3rem; }
-    .form-grid { grid-template-columns: 1fr; }
-    .features-grid { grid-template-columns: 1fr 1fr; }
-    .stats { grid-template-columns: 1fr; }
-  }
+* { box-sizing: border-box; margin: 0; padding: 0; }
+body { font-family: 'Plus Jakarta Sans', sans-serif; background: #f7f8fc; height: 100vh; display: flex; flex-direction: column; }
+.top { background: #fff; border-bottom: 1.5px solid #e8eaf6; padding: 12px 24px; display: flex; align-items: center; justify-content: space-between; flex-shrink: 0; }
+.logo { display: flex; align-items: center; gap: 10px; }
+.logo-av { width: 38px; height: 38px; background: #5c6bc0; border-radius: 12px; display: flex; align-items: center; justify-content: center; font-size: 18px; }
+.logo-name { font-size: 15px; font-weight: 700; color: #1a1a2e; }
+.logo-sub { font-size: 11px; color: #7986cb; margin-top: 1px; }
+.online { display: flex; align-items: center; gap: 6px; font-size: 12px; color: #43a047; font-weight: 500; background: #f1f8e9; border: 1.5px solid #c5e1a5; padding: 4px 12px; border-radius: 20px; }
+.online-dot { width: 7px; height: 7px; background: #66bb6a; border-radius: 50%; animation: pulse 2s ease-in-out infinite; }
+@keyframes pulse { 0%,100%{opacity:1} 50%{opacity:0.5} }
+.msgs { flex: 1; overflow-y: auto; padding: 24px; display: flex; flex-direction: column; gap: 18px; }
+.msg { display: flex; gap: 10px; animation: fadein 0.3s ease; }
+.msg.user { flex-direction: row-reverse; }
+@keyframes fadein { from{opacity:0;transform:translateY(6px)} to{opacity:1;transform:translateY(0)} }
+.av { width: 34px; height: 34px; border-radius: 50%; flex-shrink: 0; display: flex; align-items: center; justify-content: center; font-size: 16px; margin-top: 2px; }
+.av-s { background: #e8eaf6; }
+.av-u { background: #e3f2fd; }
+.msg-col { display: flex; flex-direction: column; gap: 4px; max-width: 76%; }
+.msg-name { font-size: 11px; font-weight: 500; color: #aab0c4; padding: 0 4px; }
+.msg.user .msg-name { text-align: right; }
+.bubble { padding: 12px 16px; font-size: 13.5px; line-height: 1.7; color: #2d3047; }
+.bubble-s { background: #fff; border: 1.5px solid #e8eaf6; border-radius: 4px 18px 18px 18px; }
+.bubble-u { background: #5c6bc0; color: #fff; border-radius: 18px 4px 18px 18px; }
+.tools-row { display: flex; flex-wrap: wrap; gap: 5px; margin: 8px 0 4px; }
+.tool-tag { background: #fff8e1; border: 1.5px solid #ffe082; color: #f57f17; font-size: 11px; font-weight: 500; padding: 3px 10px; border-radius: 20px; }
+.score-card { background: #f7f8fc; border: 1.5px solid #e8eaf6; border-radius: 14px; padding: 12px 14px; margin: 10px 0; }
+.score-top { display: flex; align-items: center; gap: 12px; margin-bottom: 10px; }
+.score-circle { width: 52px; height: 52px; border-radius: 50%; background: #fff; border: 3px solid #ef9a9a; display: flex; flex-direction: column; align-items: center; justify-content: center; flex-shrink: 0; }
+.score-num { font-size: 18px; font-weight: 700; color: #e53935; line-height: 1; }
+.score-den { font-size: 9px; color: #aab0c4; }
+.score-title { font-size: 13px; font-weight: 600; color: #2d3047; }
+.score-desc { font-size: 11px; color: #7986cb; margin-top: 2px; }
+.checks { display: flex; flex-direction: column; gap: 5px; }
+.check-row { display: flex; align-items: center; gap: 8px; font-size: 12px; color: #455a64; background: #fff; border-radius: 10px; padding: 7px 10px; border: 1px solid #f0f0f5; }
+.check-label { flex: 1; }
+.check-badge { font-size: 10px; font-weight: 600; padding: 2px 9px; border-radius: 20px; }
+.bad { background: #ffebee; color: #e53935; }
+.ok { background: #e8f5e9; color: #43a047; }
+.qa-row { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 10px; }
+.qa { background: #f0f2ff; border: 1.5px solid #c5cae9; border-radius: 20px; font-size: 12px; font-weight: 500; color: #5c6bc0; padding: 6px 14px; cursor: pointer; transition: all 0.15s; }
+.qa:hover { background: #e8eaf6; }
+.typing { display: flex; gap: 5px; align-items: center; padding: 8px 4px; }
+.t-dot { width: 7px; height: 7px; border-radius: 50%; animation: bounce 1.2s ease-in-out infinite; }
+.t-dot:nth-child(1) { background: #c5cae9; }
+.t-dot:nth-child(2) { background: #9fa8da; animation-delay: 0.2s; }
+.t-dot:nth-child(3) { background: #7986cb; animation-delay: 0.4s; }
+@keyframes bounce { 0%,60%,100%{transform:translateY(0)} 30%{transform:translateY(-6px)} }
+.inp-area { background: #fff; border-top: 1.5px solid #e8eaf6; padding: 14px 24px; display: flex; gap: 10px; align-items: center; flex-shrink: 0; }
+.inp-box { flex: 1; background: #f7f8fc; border: 1.5px solid #e8eaf6; border-radius: 24px; padding: 11px 18px; font-size: 13.5px; color: #2d3047; outline: none; font-family: inherit; transition: border-color 0.15s; }
+.inp-box:focus { border-color: #9fa8da; background: #fff; }
+.inp-box::placeholder { color: #c5cae9; }
+.send { width: 40px; height: 40px; background: #5c6bc0; border: none; border-radius: 50%; cursor: pointer; display: flex; align-items: center; justify-content: center; color: #fff; font-size: 16px; flex-shrink: 0; transition: all 0.15s; }
+.send:hover { background: #3949ab; transform: translateY(-1px); }
+.send:disabled { background: #c5cae9; cursor: not-allowed; transform: none; }
+::-webkit-scrollbar { width: 4px; }
+::-webkit-scrollbar-thumb { background: #e8eaf6; border-radius: 2px; }
 </style>
 </head>
 <body>
 
-<div class="orb orb-1"></div>
-<div class="orb orb-2"></div>
-
-<nav>
+<div class="top">
   <div class="logo">
-    <div class="logo-dot"></div>
-    SEOMAX
-  </div>
-  <div class="nav-badge">AGENT SEO ELITE v2.0</div>
-</nav>
-
-<section class="hero">
-  <div class="hero-label">Orchidée Innovation — Agent IA</div>
-  <h1>Propulsez votre site<br><span class="gradient-text">en position #1</span></h1>
-  <p class="hero-sub">SEOMAX analyse votre site en temps réel, identifie vos opportunités de ranking et génère un plan d'action précis pour dominer Google.</p>
-
-  <div class="audit-card">
-    <div class="form-grid">
-      <div class="form-group full">
-        <label>URL à analyser</label>
-        <input type="url" id="url" placeholder="https://votre-site.fr" />
-      </div>
-      <div class="form-group">
-        <label>Mot-clé cible (optionnel)</label>
-        <input type="text" id="keyword" placeholder="ex: installateur panneaux solaires" />
-      </div>
-      <div class="form-group">
-        <label>Recevoir le rapport par email</label>
-        <input type="email" id="email" placeholder="vous@email.fr" />
-      </div>
-    </div>
-    <button class="btn-audit" id="btn" onclick="startAudit()">
-      ⚡ Lancer l'analyse SEOMAX
-    </button>
-
-    <div class="stats">
-      <div class="stat">
-        <div class="stat-num" id="s-tools">0</div>
-        <div class="stat-label">Outils utilisés</div>
-      </div>
-      <div class="stat">
-        <div class="stat-num" id="s-time">0s</div>
-        <div class="stat-label">Temps d'analyse</div>
-      </div>
-      <div class="stat">
-        <div class="stat-num" id="s-lines">0</div>
-        <div class="stat-label">Lignes analysées</div>
-      </div>
+    <div class="logo-av">🚀</div>
+    <div>
+      <div class="logo-name">SEOMAX</div>
+      <div class="logo-sub">Votre agent SEO personnel</div>
     </div>
   </div>
+  <div class="online"><div class="online-dot"></div>En ligne</div>
+</div>
 
-  <div class="terminal" id="terminal">
-    <div class="terminal-header">
-      <div class="t-dot t-dot-1"></div>
-      <div class="t-dot t-dot-2"></div>
-      <div class="t-dot t-dot-3"></div>
-      <div class="t-title">SEOMAX — Analyse en cours</div>
-    </div>
-    <div class="terminal-body" id="output">
-      <span class="cursor"></span>
-    </div>
-  </div>
-</section>
+<div class="msgs" id="msgs"></div>
 
-<section class="features">
-  <div class="features-grid">
-    <div class="feature">
-      <div class="feature-icon">🔍</div>
-      <div class="feature-title">Audit on-page</div>
-      <div class="feature-desc">Score /100 avec analyse complète des balises, structure et contenu.</div>
-    </div>
-    <div class="feature">
-      <div class="feature-icon">📊</div>
-      <div class="feature-title">Analyse concurrents</div>
-      <div class="feature-desc">Décryptage des stratégies des 5 sites en top position sur vos mots-clés.</div>
-    </div>
-    <div class="feature">
-      <div class="feature-icon">⚡</div>
-      <div class="feature-title">Quick wins</div>
-      <div class="feature-desc">Actions prioritaires pour des résultats visibles en moins de 30 jours.</div>
-    </div>
-    <div class="feature">
-      <div class="feature-icon">📧</div>
-      <div class="feature-title">Rapport email</div>
-      <div class="feature-desc">Rapport complet envoyé directement dans votre boîte mail.</div>
-    </div>
-  </div>
-</section>
+<div class="inp-area">
+  <input class="inp-box" id="inp" type="text" placeholder="Posez votre question à SEOMAX..." />
+  <button class="send" id="send-btn" onclick="sendMessage()">↑</button>
+</div>
 
 <script>
-  let startTime, timer, toolCount = 0, lineCount = 0;
+const AGENT_ID = 'agent_011CaY1QbMWkL8UepiQgHedg';
+const ENV_ID = 'env_01CSojXza8dTzSDqdtaUUfhH';
+let isLoading = false;
 
-  function updateStats() {
-    const elapsed = Math.round((Date.now() - startTime) / 1000);
-    document.getElementById('s-time').textContent = elapsed + 's';
-    document.getElementById('s-tools').textContent = toolCount;
-    document.getElementById('s-lines').textContent = lineCount;
+function getTime() {
+  return new Date().toLocaleTimeString('fr-FR', {hour:'2-digit', minute:'2-digit'});
+}
+
+function addMessage(role, content, isHtml) {
+  const msgs = document.getElementById('msgs');
+  const div = document.createElement('div');
+  div.className = 'msg' + (role === 'user' ? ' user' : '');
+
+  const av = document.createElement('div');
+  av.className = 'av ' + (role === 'user' ? 'av-u' : 'av-s');
+  av.textContent = role === 'user' ? '👤' : '🚀';
+
+  const col = document.createElement('div');
+  col.className = 'msg-col';
+
+  const name = document.createElement('div');
+  name.className = 'msg-name';
+  name.textContent = role === 'user' ? 'Vous' : 'SEOMAX';
+
+  const bubble = document.createElement('div');
+  bubble.className = 'bubble ' + (role === 'user' ? 'bubble-u' : 'bubble-s');
+
+  if (isHtml) {
+    bubble.innerHTML = content;
+  } else {
+    bubble.innerHTML = formatText(content);
   }
 
-  function addLine(content, type = 'content') {
-    const output = document.getElementById('output');
-    const cursor = output.querySelector('.cursor');
+  col.appendChild(name);
+  col.appendChild(bubble);
+  div.appendChild(av);
+  div.appendChild(col);
+  msgs.appendChild(div);
+  msgs.scrollTop = msgs.scrollHeight;
+  return bubble;
+}
 
-    const line = document.createElement('div');
-    line.className = 't-line';
+function addTyping() {
+  const msgs = document.getElementById('msgs');
+  const div = document.createElement('div');
+  div.className = 'msg';
+  div.id = 'typing-indicator';
 
-    const prefix = document.createElement('span');
-    prefix.className = 't-prefix';
-    prefix.textContent = '›';
+  const av = document.createElement('div');
+  av.className = 'av av-s';
+  av.textContent = '🚀';
 
-    const text = document.createElement('span');
-    text.className = `t-content t-${type}`;
-    text.innerHTML = formatMarkdown(content);
+  const col = document.createElement('div');
+  col.className = 'msg-col';
 
-    line.appendChild(prefix);
-    line.appendChild(text);
+  const bubble = document.createElement('div');
+  bubble.className = 'bubble bubble-s';
+  bubble.innerHTML = '<div class="typing"><div class="t-dot"></div><div class="t-dot"></div><div class="t-dot"></div></div>';
 
-    if (cursor) output.insertBefore(line, cursor);
-    else output.appendChild(line);
+  col.appendChild(bubble);
+  div.appendChild(av);
+  div.appendChild(col);
+  msgs.appendChild(div);
+  msgs.scrollTop = msgs.scrollHeight;
+}
 
-    output.scrollTop = output.scrollHeight;
-    lineCount++;
-    updateStats();
-  }
+function removeTyping() {
+  const t = document.getElementById('typing-indicator');
+  if (t) t.remove();
+}
 
-  function formatMarkdown(text) {
-    return text
-      .replace(/^### (.+)$/gm, '<span class="md-h3">$1</span>')
-      .replace(/^## (.+)$/gm, '<span class="md-h2">$1</span>')
-      .replace(/^# (.+)$/gm, '<span class="md-h1">$1</span>')
-      .replace(/\*\*(.+?)\*\*/g, '<span class="md-bold">$1</span>')
-      .replace(/^[-•] (.+)$/gm, '<span class="md-li">$1</span>')
-      .replace(/`(.+?)`/g, '<code style="color:#00ff88;background:rgba(0,255,136,0.1);padding:1px 6px;border-radius:4px;">$1</code>');
-  }
+function formatText(text) {
+  return text
+    .replace(/\*\*(.+?)\*\*/g, '<strong>$1</strong>')
+    .replace(/^### (.+)$/gm, '<div style="font-weight:600;color:#5c6bc0;margin:8px 0 4px">$1</div>')
+    .replace(/^## (.+)$/gm, '<div style="font-weight:700;color:#3949ab;margin:10px 0 6px;font-size:14px">$1</div>')
+    .replace(/^[-•] (.+)$/gm, '<div style="padding:2px 0 2px 12px">› $1</div>')
+    .replace(/\n\n/g, '<br><br>')
+    .replace(/\n/g, '<br>');
+}
 
-  async function startAudit() {
-    const url = document.getElementById('url').value.trim();
-    const email = document.getElementById('email').value.trim();
-    const keyword = document.getElementById('keyword').value.trim();
-
-    if (!url) {
-      alert('Veuillez entrer une URL à analyser');
-      return;
-    }
-
-    const btn = document.getElementById('btn');
-    const terminal = document.getElementById('terminal');
-    const output = document.getElementById('output');
-
-    btn.textContent = '⏳ Analyse en cours...';
-    btn.classList.add('loading');
-    btn.disabled = true;
-
-    output.innerHTML = '<span class="cursor"></span>';
-    terminal.classList.add('active');
-    toolCount = 0; lineCount = 0;
-    startTime = Date.now();
-
-    timer = setInterval(updateStats, 1000);
-
-    addLine(`Analyse de : ${url}`, 'status');
-    if (keyword) addLine(`Mot-clé cible : ${keyword}`, 'status');
-    if (email) addLine(`Rapport envoyé à : ${email}`, 'status');
-    addLine('Connexion à SEOMAX...', 'status');
-
-    try {
-      const response = await fetch('/audit', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ url, email, keyword })
-      });
-
-      const reader = response.body.getReader();
-      const decoder = new TextDecoder();
-
-      while (true) {
-        const { done, value } = await reader.read();
-        if (done) break;
-
-        const chunk = decoder.decode(value);
-        const lines = chunk.split('\n');
-
-        for (const line of lines) {
-          if (line.startsWith('data:')) {
-            try {
-              const data = JSON.parse(line.slice(5).trim());
-
-              if (data.type === 'message') {
-                const parts = data.content.split('\n');
-                for (const part of parts) {
-                  if (part.trim()) addLine(part, 'content');
-                }
-              } else if (data.type === 'tool') {
-                toolCount++;
-                addLine(data.content, 'tool');
-                updateStats();
-              } else if (data.type === 'status') {
-                addLine(data.content, 'status');
-              } else if (data.type === 'done') {
-                addLine(data.content, 'done');
-              } else if (data.type === 'error') {
-                addLine(data.content, 'error');
-              }
-            } catch(e) {}
-          }
-        }
-      }
-    } catch(e) {
-      addLine('Erreur de connexion : ' + e.message, 'error');
-    }
-
-    clearInterval(timer);
-    updateStats();
-    btn.textContent = '⚡ Lancer une nouvelle analyse';
-    btn.classList.remove('loading');
-    btn.disabled = false;
-  }
-
-  document.getElementById('url').addEventListener('keypress', (e) => {
-    if (e.key === 'Enter') startAudit();
+function addQuickActions(bubble, actions) {
+  const row = document.createElement('div');
+  row.className = 'qa-row';
+  actions.forEach(a => {
+    const btn = document.createElement('div');
+    btn.className = 'qa';
+    btn.textContent = a;
+    btn.onclick = () => {
+      document.getElementById('inp').value = a;
+      sendMessage();
+    };
+    row.appendChild(btn);
   });
+  bubble.appendChild(row);
+}
+
+async function sendMessage() {
+  if (isLoading) return;
+  const inp = document.getElementById('inp');
+  const text = inp.value.trim();
+  if (!text) return;
+
+  inp.value = '';
+  isLoading = true;
+  document.getElementById('send-btn').disabled = true;
+
+  addMessage('user', text);
+  addTyping();
+
+  try {
+    const resp = await fetch('/audit', {
+      method: 'POST',
+      headers: {'Content-Type': 'application/json'},
+      body: JSON.stringify({url: text, email: '', keyword: ''})
+    });
+
+    removeTyping();
+    const bubble = addMessage('agent', '').parentElement.querySelector('.bubble');
+    let fullText = '';
+
+    const reader = resp.body.getReader();
+    const dec = new TextDecoder();
+
+    while (true) {
+      const {done, value} = await reader.read();
+      if (done) break;
+      const chunk = dec.decode(value);
+      for (const line of chunk.split('\n')) {
+        if (!line.startsWith('data:')) continue;
+        try {
+          const d = JSON.parse(line.slice(5).trim());
+          if (d.type === 'message') {
+            fullText += d.content + '\n';
+            bubble.innerHTML = formatText(fullText);
+            document.getElementById('msgs').scrollTop = document.getElementById('msgs').scrollHeight;
+          } else if (d.type === 'tool') {
+            const tag = document.createElement('span');
+            tag.className = 'tool-tag';
+            tag.textContent = '⚡ ' + d.content.replace('🛠️ Utilisation de : ', '');
+            let row = bubble.querySelector('.tools-row');
+            if (!row) { row = document.createElement('div'); row.className = 'tools-row'; bubble.prepend(row); }
+            row.appendChild(tag);
+          } else if (d.type === 'done') {
+            addQuickActions(bubble, ['📋 Voir le plan d\'action', '📧 Recevoir par email', '🏆 Analyser les concurrents']);
+          }
+        } catch(e) {}
+      }
+    }
+  } catch(e) {
+    removeTyping();
+    addMessage('agent', 'Oups, une erreur est survenue 😕 Réessayez dans un instant !');
+  }
+
+  isLoading = false;
+  document.getElementById('send-btn').disabled = false;
+  inp.focus();
+}
+
+document.getElementById('inp').addEventListener('keydown', e => {
+  if (e.key === 'Enter') sendMessage();
+});
+
+window.onload = () => {
+  const bubble = addMessage('agent', '').parentElement.querySelector('.bubble');
+  bubble.innerHTML = '👋 Salut ! Je suis <strong>SEOMAX</strong>, votre agent SEO personnel.<br><br>Donnez-moi une URL à analyser, posez-moi une question SEO, ou dites-moi quel mot-clé vous souhaitez cibler — je m\'occupe du reste !';
+  addQuickActions(bubble, ['🔍 Auditer mon site', '🎯 Analyser un mot-clé', '🏆 Voir mes concurrents']);
+};
 </script>
 </body>
 </html>
