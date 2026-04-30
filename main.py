@@ -5,6 +5,7 @@ from pydantic import BaseModel
 import os
 import json
 import httpx
+import sys
 
 app = FastAPI()
 
@@ -38,6 +39,8 @@ async def stream_agent_response(url: str, email: str, keyword: str):
     if email:
         message += f" | Envoie le rapport complet par email à : {email}"
 
+    print(f"[1] Création session pour message: {message[:50]}", flush=True)
+
     # Créer la session
     try:
         async with httpx.AsyncClient(timeout=30) as client:
@@ -49,20 +52,26 @@ async def stream_agent_response(url: str, email: str, keyword: str):
                     "agent": {"type": "agent", "id": AGENT_ID}
                 }
             )
+            print(f"[2] Session status: {session_resp.status_code}", flush=True)
+            print(f"[3] Session body: {session_resp.text[:200]}", flush=True)
             session_data = session_resp.json()
             session_id = session_data.get("id")
     except Exception as e:
-        yield f"data: {json.dumps({'type': 'error', 'content': f'Erreur création session: {str(e)}'})}\n\n"
+        print(f"[ERR] Session error: {e}", flush=True)
+        yield f"data: {json.dumps({'type': 'error', 'content': f'Erreur session: {str(e)}'})}\n\n"
         return
 
     if not session_id:
-        yield f"data: {json.dumps({'type': 'error', 'content': 'Impossible de créer la session'})}\n\n"
+        print(f"[ERR] Pas de session_id dans: {session_data}", flush=True)
+        yield f"data: {json.dumps({'type': 'error', 'content': 'Pas de session ID'})}\n\n"
         return
 
+    print(f"[4] Session créée: {session_id}", flush=True)
     yield f"data: {json.dumps({'type': 'status', 'content': 'Connexion à Brandon...'})}\n\n"
 
     # Envoyer le message et streamer les événements
     try:
+        print(f"[5] Envoi message à la session...", flush=True)
         async with httpx.AsyncClient(timeout=300) as client:
             async with client.stream(
                 "POST",
@@ -82,7 +91,12 @@ async def stream_agent_response(url: str, email: str, keyword: str):
                     ]
                 }
             ) as response:
+                print(f"[6] Stream status: {response.status_code}", flush=True)
+                line_count = 0
                 async for line in response.aiter_lines():
+                    line_count += 1
+                    if line_count <= 5:
+                        print(f"[7] Line {line_count}: {line[:100]}", flush=True)
                     if not line.startswith("data:"):
                         continue
                     raw = line[5:].strip()
@@ -91,11 +105,13 @@ async def stream_agent_response(url: str, email: str, keyword: str):
                     try:
                         data = json.loads(raw)
                         event_type = data.get("type", "")
+                        print(f"[8] Event: {event_type}", flush=True)
 
                         if event_type == "agent.message":
                             content = data.get("content", [])
                             for block in content:
                                 if block.get("type") == "text" and block.get("text"):
+                                    print(f"[9] Text: {block['text'][:50]}", flush=True)
                                     yield f"data: {json.dumps({'type': 'message', 'content': block['text']})}\n\n"
 
                         elif event_type == "agent.mcp_tool_use":
@@ -105,11 +121,14 @@ async def stream_agent_response(url: str, email: str, keyword: str):
                         elif event_type in ["session.status_idle", "session.idle"]:
                             yield f"data: {json.dumps({'type': 'done', 'content': 'Analyse terminée'})}\n\n"
 
-                    except json.JSONDecodeError:
-                        pass
+                    except json.JSONDecodeError as e:
+                        print(f"[ERR] JSON: {e} sur: {raw[:50]}", flush=True)
+
+                print(f"[10] Stream terminé, {line_count} lignes reçues", flush=True)
 
     except Exception as e:
-        yield f"data: {json.dumps({'type': 'error', 'content': f'Erreur streaming: {str(e)}'})}\n\n"
+        print(f"[ERR] Stream error: {e}", flush=True)
+        yield f"data: {json.dumps({'type': 'error', 'content': f'Erreur: {str(e)}'})}\n\n"
 
 
 @app.get("/", response_class=HTMLResponse)
