@@ -23,103 +23,114 @@ BASE_HEADERS = {
     "x-api-key": ANTHROPIC_API_KEY,
     "anthropic-version": "2023-06-01",
     "anthropic-beta": "managed-agents-2026-04-01",
-    "content-type": "application/json"
+    "content-type": "application/json",
 }
+
 
 class AuditRequest(BaseModel):
     url: str
     email: str = ""
     keyword: str = ""
 
-async def stream_agent_response(url: str, email: str, keyword: str):
-    message = url
+
+def build_user_message(url: str, email: str, keyword: str) -> str:
+    """Construit le message envoyé à Brandon."""
+    msg = f"Audite ce site : {url}"
     if keyword:
-        message += f" | Mot-cle cible : {keyword}"
+        msg += f"\nMot-clé cible : {keyword}"
     if email:
-        message += f" | Envoie le rapport par email a : {email}"
+        msg += f"\nEnvoie le rapport final à : {email}"
+    return msg
 
-    yield f"data: {json.dumps({'type': 'status', 'content': 'Connexion a Brandon...'})}\n\n"
 
-    # 1. Creer la session
-    try:
-        async with httpx.AsyncClient(timeout=30) as client:
-            r = await client.post(
-                "https://api.anthropic.com/v1/sessions",
-                headers=BASE_HEADERS,
-                json={
-                    "environment_id": ENVIRONMENT_ID,
-                    "agent": {"type": "agent", "id": AGENT_ID}
-                }
-            )
-            session_id = r.json().get("id")
-            print(f"Session: {session_id}", flush=True)
-    except Exception as e:
-        yield f"data: {json.dumps({'type': 'error', 'content': str(e)})}\n\n"
-        return
+async def stream_agent_response(url: str, email: str, keyword: str):
+    """
+    Crée une session ET stream les événements en une seule requête SSE.
+    C'est ça la bonne méthode — pas de POST /sessions puis GET /stream séparés.
+    """
+    user_message = build_user_message(url, email, keyword)
 
-    if not session_id:
-        yield f"data: {json.dumps({'type': 'error', 'content': 'Pas de session'})}\n\n"
-        return
-
-    # 2. Envoyer message + streamer avec Accept: text/event-stream
-    stream_headers = dict(BASE_HEADERS)
-    stream_headers["Accept"] = "text/event-stream"
+    payload = {
+        "agent_id": AGENT_ID,
+        "environment_id": ENVIRONMENT_ID,
+        "input": [
+            {
+                "type": "user_message",
+                "content": [
+                    {"type": "text", "text": user_message}
+                ],
+            }
+        ],
+        "stream": True,
+    }
 
     try:
-        async with httpx.AsyncClient(timeout=300) as client:
+        async with httpx.AsyncClient(timeout=None) as client:
             async with client.stream(
                 "POST",
-                f"https://api.anthropic.com/v1/sessions/{session_id}/events",
-                headers=stream_headers,
-                json={
-                    "events": [
-                        {
-                            "type": "user.message",
-                            "content": [{"type": "text", "text": message}]
-                        }
-                    ]
-                }
+                "https://api.anthropic.com/v1/sessions",
+                headers=BASE_HEADERS,
+                json=payload,
             ) as response:
-                print(f"Stream status: {response.status_code}", flush=True)
+
+                if response.status_code != 200:
+                    error_body = await response.aread()
+                    yield f"data: {json.dumps({'type': 'error', 'content': f'API {response.status_code}: {error_body.decode()}'})}\n\n"
+                    return
+
+                # Parse les événements SSE
                 async for line in response.aiter_lines():
-                    if not line.startswith("data:"):
+                    if not line or not line.startswith("data:"):
                         continue
-                    raw = line[5:].strip()
-                    if not raw or raw == "[DONE]":
+
+                    data_str = line[5:].strip()
+                    if not data_str:
                         continue
+
                     try:
-                        data = json.loads(raw)
-                        event_type = data.get("type", "")
-                        print(f"Event: {event_type}", flush=True)
-
-                        if event_type == "agent.message":
-                            for block in data.get("content", []):
-                                if block.get("type") == "text" and block.get("text"):
-                                    yield f"data: {json.dumps({'type': 'message', 'content': block['text']})}\n\n"
-
-                        elif event_type == "agent.mcp_tool_use":
-                            tool_name = data.get("name", "outil")
-                            msg = f"Utilisation de : {tool_name}"
-                            yield f"data: {json.dumps({'type': 'tool', 'content': msg})}\n\n"
-
-                        elif event_type == "session.status_idle":
-                            stop = data.get("stop_reason", {})
-                            if stop.get("type") == "end_turn":
-                                yield f"data: {json.dumps({'type': 'done', 'content': 'Termine'})}\n\n"
-                                break
-
+                        event = json.loads(data_str)
                     except json.JSONDecodeError:
-                        pass
+                        continue
 
+                    event_type = event.get("type", "")
+
+                    # Texte généré par l'agent
+                    if event_type == "content_block_delta":
+                        delta = event.get("delta", {})
+                        if delta.get("type") == "text_delta":
+                            text = delta.get("text", "")
+                            if text:
+                                yield f"data: {json.dumps({'type': 'text', 'content': text})}\n\n"
+
+                    # Outil utilisé (web_search, bash, gmail, etc.)
+                    elif event_type == "content_block_start":
+                        block = event.get("content_block", {})
+                        if block.get("type") in ("tool_use", "server_tool_use", "mcp_tool_use"):
+                            tool_name = block.get("name", "outil")
+                            yield f"data: {json.dumps({'type': 'tool', 'content': f'🔧 Utilisation de : {tool_name}'})}\n\n"
+
+                    # Session terminée
+                    elif event_type == "session.status_idle":
+                        yield f"data: {json.dumps({'type': 'done', 'content': 'Terminé'})}\n\n"
+                        return
+
+                    # Erreur côté agent
+                    elif event_type == "error":
+                        err = event.get("error", {})
+                        yield f"data: {json.dumps({'type': 'error', 'content': err.get('message', 'Erreur inconnue')})}\n\n"
+                        return
+
+    except httpx.HTTPError as e:
+        yield f"data: {json.dumps({'type': 'error', 'content': f'Erreur HTTP : {str(e)}'})}\n\n"
     except Exception as e:
-        print(f"Erreur: {e}", flush=True)
-        yield f"data: {json.dumps({'type': 'error', 'content': str(e)})}\n\n"
+        yield f"data: {json.dumps({'type': 'error', 'content': f'Erreur : {str(e)}'})}\n\n"
 
 
 @app.get("/", response_class=HTMLResponse)
 async def index():
     with open("index.html", "r", encoding="utf-8") as f:
         return f.read()
+
 
 @app.post("/audit")
 async def audit(request: AuditRequest):
@@ -129,10 +140,12 @@ async def audit(request: AuditRequest):
         headers={
             "Cache-Control": "no-cache",
             "Connection": "keep-alive",
-            "Access-Control-Allow-Origin": "*"
-        }
+            "Access-Control-Allow-Origin": "*",
+            "X-Accel-Buffering": "no",
+        },
     )
+
 
 @app.get("/health")
 async def health():
-    return {"status": "ok", "agent": AGENT_ID}
+    return {"status": "ok", "agent": AGENT_ID, "env": ENVIRONMENT_ID}
