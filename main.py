@@ -80,7 +80,7 @@ async def stream_agent_response(url: str, email: str, keyword: str):
                 json={
                     "events": [
                         {
-                            "type": "user",
+                            "type": "user.message",
                             "content": [
                                 {
                                     "type": "text",
