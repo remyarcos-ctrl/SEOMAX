@@ -38,7 +38,7 @@ async def stream_agent_response(url: str, email: str, keyword: str):
     if email:
         message += f" | Envoie le rapport complet par email à : {email}"
 
-    # Créer la session
+    # 1. Créer la session
     try:
         async with httpx.AsyncClient(timeout=30) as client:
             session_resp = await client.post(
@@ -51,7 +51,7 @@ async def stream_agent_response(url: str, email: str, keyword: str):
             )
             session_data = session_resp.json()
             session_id = session_data.get("id")
-            print(f"Session créée: {session_id}", flush=True)
+            print(f"Session: {session_id}", flush=True)
     except Exception as e:
         yield f"data: {json.dumps({'type': 'error', 'content': str(e)})}\n\n"
         return
@@ -62,12 +62,21 @@ async def stream_agent_response(url: str, email: str, keyword: str):
 
     yield f"data: {json.dumps({'type': 'status', 'content': 'Connexion à Brandon...'})}\n\n"
 
-    # Envoyer le message utilisateur
+    # 2. Envoyer le message ET streamer en même temps
+    stream_headers = {
+        "x-api-key": ANTHROPIC_API_KEY,
+        "anthropic-version": "2023-06-01",
+        "anthropic-beta": "managed-agents-2026-04-01",
+        "content-type": "application/json",
+        "Accept": "text/event-stream"
+    }
+
     try:
-        async with httpx.AsyncClient(timeout=30) as client:
-            await client.post(
+        async with httpx.AsyncClient(timeout=300) as client:
+            async with client.stream(
+                "POST",
                 f"https://api.anthropic.com/v1/sessions/{session_id}/events",
-                headers=headers,
+                headers=stream_headers,
                 json={
                     "events": [
                         {
@@ -76,21 +85,8 @@ async def stream_agent_response(url: str, email: str, keyword: str):
                         }
                     ]
                 }
-            )
-            print(f"Message envoyé", flush=True)
-    except Exception as e:
-        yield f"data: {json.dumps({'type': 'error', 'content': str(e)})}\n\n"
-        return
-
-    # Streamer les événements de l'agent
-    try:
-        async with httpx.AsyncClient(timeout=300) as client:
-            async with client.stream(
-                "GET",
-                f"https://api.anthropic.com/v1/sessions/{session_id}/stream",
-                headers=headers,
             ) as response:
-                print(f"Stream status: {response.status_code}", flush=True)
+                print(f"Stream POST status: {response.status_code}", flush=True)
                 async for line in response.aiter_lines():
                     if not line.startswith("data:"):
                         continue
@@ -112,15 +108,17 @@ async def stream_agent_response(url: str, email: str, keyword: str):
                             tool_name = data.get("name", "outil")
                             yield f"data: {json.dumps({'type': 'tool', 'content': f'Utilisation de : {tool_name}'})}\n\n"
 
-                        elif event_type in ["session.status_idle", "session.idle"]:
-                            yield f"data: {json.dumps({'type': 'done', 'content': 'Terminé'})}\n\n"
-                            break
+                        elif event_type == "session.status_idle":
+                            stop_reason = data.get("stop_reason", {})
+                            if stop_reason.get("type") == "end_turn":
+                                yield f"data: {json.dumps({'type': 'done', 'content': 'Terminé'})}\n\n"
+                                break
 
                     except json.JSONDecodeError:
                         pass
 
     except Exception as e:
-        print(f"Stream error: {e}", flush=True)
+        print(f"Erreur: {e}", flush=True)
         yield f"data: {json.dumps({'type': 'error', 'content': str(e)})}\n\n"
 
 
