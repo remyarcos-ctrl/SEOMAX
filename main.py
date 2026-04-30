@@ -4,7 +4,7 @@ from fastapi.responses import HTMLResponse, StreamingResponse
 from pydantic import BaseModel
 import os
 import json
-import anthropic
+import httpx
 
 app = FastAPI()
 
@@ -19,6 +19,13 @@ ANTHROPIC_API_KEY = os.environ.get("ANTHROPIC_API_KEY")
 AGENT_ID = os.environ.get("AGENT_ID", "agent_011CaY1QbMWkL8UepiQgHedg")
 ENVIRONMENT_ID = os.environ.get("ENVIRONMENT_ID", "env_01CSojXza8dTzSDqdtaUUfhH")
 
+BASE_HEADERS = {
+    "x-api-key": ANTHROPIC_API_KEY,
+    "anthropic-version": "2023-06-01",
+    "anthropic-beta": "managed-agents-2026-04-01",
+    "content-type": "application/json"
+}
+
 class AuditRequest(BaseModel):
     url: str
     email: str = ""
@@ -27,49 +34,82 @@ class AuditRequest(BaseModel):
 async def stream_agent_response(url: str, email: str, keyword: str):
     message = url
     if keyword:
-        message += f" | Mot-clé cible : {keyword}"
+        message += f" | Mot-cle cible : {keyword}"
     if email:
-        message += f" | Envoie le rapport complet par email à : {email}"
+        message += f" | Envoie le rapport par email a : {email}"
 
-    yield f"data: {json.dumps({'type': 'status', 'content': 'Connexion à Brandon...'})}\n\n"
+    yield f"data: {json.dumps({'type': 'status', 'content': 'Connexion a Brandon...'})}\n\n"
+
+    # 1. Creer la session
+    try:
+        async with httpx.AsyncClient(timeout=30) as client:
+            r = await client.post(
+                "https://api.anthropic.com/v1/sessions",
+                headers=BASE_HEADERS,
+                json={
+                    "environment_id": ENVIRONMENT_ID,
+                    "agent": {"type": "agent", "id": AGENT_ID}
+                }
+            )
+            session_id = r.json().get("id")
+            print(f"Session: {session_id}", flush=True)
+    except Exception as e:
+        yield f"data: {json.dumps({'type': 'error', 'content': str(e)})}\n\n"
+        return
+
+    if not session_id:
+        yield f"data: {json.dumps({'type': 'error', 'content': 'Pas de session'})}\n\n"
+        return
+
+    # 2. Envoyer message + streamer avec Accept: text/event-stream
+    stream_headers = dict(BASE_HEADERS)
+    stream_headers["Accept"] = "text/event-stream"
 
     try:
-        client = anthropic.Anthropic(api_key=ANTHROPIC_API_KEY)
+        async with httpx.AsyncClient(timeout=300) as client:
+            async with client.stream(
+                "POST",
+                f"https://api.anthropic.com/v1/sessions/{session_id}/events",
+                headers=stream_headers,
+                json={
+                    "events": [
+                        {
+                            "type": "user.message",
+                            "content": [{"type": "text", "text": message}]
+                        }
+                    ]
+                }
+            ) as response:
+                print(f"Stream status: {response.status_code}", flush=True)
+                async for line in response.aiter_lines():
+                    if not line.startswith("data:"):
+                        continue
+                    raw = line[5:].strip()
+                    if not raw or raw == "[DONE]":
+                        continue
+                    try:
+                        data = json.loads(raw)
+                        event_type = data.get("type", "")
+                        print(f"Event: {event_type}", flush=True)
 
-        # Créer la session
-        session = client.beta.sessions.create(
-            environment_id=ENVIRONMENT_ID,
-            agent={"type": "agent", "id": AGENT_ID},
-            betas=["managed-agents-2026-04-01"]
-        )
-        session_id = session.id
-        print(f"Session: {session_id}", flush=True)
+                        if event_type == "agent.message":
+                            for block in data.get("content", []):
+                                if block.get("type") == "text" and block.get("text"):
+                                    yield f"data: {json.dumps({'type': 'message', 'content': block['text']})}\n\n"
 
-        # Envoyer le message et streamer
-        with client.beta.sessions.events.stream(
-            session_id=session_id,
-            events=[{
-                "type": "user.message",
-                "content": [{"type": "text", "text": message}]
-            }],
-            betas=["managed-agents-2026-04-01"]
-        ) as stream:
-            for event in stream:
-                event_type = getattr(event, "type", "")
-                print(f"Event: {event_type}", flush=True)
+                        elif event_type == "agent.mcp_tool_use":
+                            tool_name = data.get("name", "outil")
+                            msg = f"Utilisation de : {tool_name}"
+                            yield f"data: {json.dumps({'type': 'tool', 'content': msg})}\n\n"
 
-                if event_type == "agent.message":
-                    content = getattr(event, "content", [])
-                    for block in content:
-                        if getattr(block, "type", "") == "text":
-                            yield f"data: {json.dumps({'type': 'message', 'content': block.text})}\n\n"
+                        elif event_type == "session.status_idle":
+                            stop = data.get("stop_reason", {})
+                            if stop.get("type") == "end_turn":
+                                yield f"data: {json.dumps({'type': 'done', 'content': 'Termine'})}\n\n"
+                                break
 
-                elif event_type == "agent.mcp_tool_use":
-                    yield f"data: {json.dumps({'type': 'tool', 'content': f'Utilisation de : {getattr(event, \"name\", \"\")}'})}\n\n"
-
-                elif event_type == "session.status_idle":
-                    yield f"data: {json.dumps({'type': 'done', 'content': 'Terminé'})}\n\n"
-                    break
+                    except json.JSONDecodeError:
+                        pass
 
     except Exception as e:
         print(f"Erreur: {e}", flush=True)
